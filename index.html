@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Can / Can't Sentence Game</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(to right, #dbeafe, #eff6ff);
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .game-container {
+        max-width: 900px;
+        margin: auto;
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    h1 {
+        color: #1e3a8a;
+        margin-bottom: 10px;
+    }
+
+    .instruction {
+        font-size: 20px;
+        margin-bottom: 20px;
+        color: #374151;
+    }
+
+    .sentence-area {
+        min-height: 60px;
+        border: 2px dashed #93c5fd;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        font-size: 24px;
+        background: #f8fafc;
+    }
+
+    .word-bank {
+        margin-top: 20px;
+    }
+
+    .word {
+        display: inline-block;
+        background: #3b82f6;
+        color: white;
+        padding: 12px 18px;
+        margin: 8px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 22px;
+        transition: 0.3s;
+        user-select: none;
+    }
+
+    .word:hover {
+        transform: scale(1.05);
+    }
+
+    .correct {
+        background: #22c55e !important;
+    }
+
+    .wrong {
+        background: #ef4444 !important;
+    }
+
+    button {
+        margin-top: 25px;
+        padding: 12px 25px;
+        font-size: 20px;
+        border: none;
+        border-radius: 10px;
+        background: #1d4ed8;
+        color: white;
+        cursor: pointer;
+        display: none;
+    }
+
+    button:hover {
+        background: #2563eb;
+    }
+
+    .answers {
+        text-align: left;
+        font-size: 22px;
+        margin-top: 30px;
+        line-height: 1.8;
+    }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>Can / Can't Word Order Game</h1>
+    <p class="instruction">Click the words in the correct order to make a sentence.</p>
+
+    <div class="sentence-area" id="builtSentence"></div>
+    <div class="word-bank" id="wordBank"></div>
+    <button id="nextBtn" onclick="nextSentence()">Next</button>
+</div>
+
+<script>
+const sentences = [
+    ["You", "can", "watch", "films", "on", "DVD."],
+    ["We", "can", "have", "a", "garden."],
+    ["We", "can’t", "go", "shopping", "in", "the", "countryside."],
+    ["We", "can’t", "go", "to", "the", "cinema."],
+    ["Can", "I", "play", "tennis?"],
+    ["Can", "we", "have", "a", "dog?"]
+];
+
+let current = 0;
+let progress = 0;
+let built = [];
+let completed = [];
+
+const builtSentence = document.getElementById("builtSentence");
+const wordBank = document.getElementById("wordBank");
+const nextBtn = document.getElementById("nextBtn");
+
+function shuffle(array) {
+    return [...array].sort(() => Math.random() - 0.5);
+}
+
+function loadSentence() {
+    built = [];
+    progress = 0;
+    builtSentence.innerHTML = "";
+    nextBtn.style.display = "none";
+    wordBank.innerHTML = "";
+
+    let shuffled = shuffle(sentences[current]);
+
+    shuffled.forEach(word => {
+        const btn = document.createElement("span");
+        btn.className = "word";
+        btn.textContent = word;
+        btn.onclick = () => checkWord(word, btn);
+        wordBank.appendChild(btn);
+    });
+}
+
+function checkWord(word, element) {
+    const correctWord = sentences[current][progress];
+
+    if (word === correctWord) {
+        element.classList.add("correct");
+        element.style.pointerEvents = "none";
+        built.push(word);
+        builtSentence.textContent = built.join(" ");
+        progress++;
+
+        if (progress === sentences[current].length) {
+            completed.push(sentences[current].join(" "));
+            nextBtn.style.display = "inline-block";
+        }
+
+    } else {
+        element.classList.add("wrong");
+        setTimeout(() => element.classList.remove("wrong"), 500);
+    }
+}
+
+function nextSentence() {
+    current++;
+    if (current < sentences.length) {
+        loadSentence();
+    } else {
+        showAnswers();
+    }
+}
+
+function showAnswers() {
+    document.querySelector(".game-container").innerHTML = `
+        <h1>Great Job!</h1>
+        <h2>Model Answers</h2>
+        <div class="answers">
+            ${completed.map((s, i) => `${i+1}. ${s}`).join("<br>")}
+        </div>
+    `;
+}
+
+loadSentence();
+</script>
+
+</body>
+</html>
